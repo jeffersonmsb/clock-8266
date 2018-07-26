@@ -6,6 +6,7 @@
 #include "Ldr.h"
 #include "DHT.h"
 #include "Filesystem.h"
+#include "Alarmclock.h"
 
 class Web{
   private:
@@ -15,14 +16,16 @@ class Web{
     Ldr *ldr;
     DHT *dht;
     Filesystem *filesystem;
+    Alarmclock *alarmclock;
 
   public:
-    Web(Light *lightOut, Ldr *ldrOut, DHT *dhtOut, Filesystem *filesystemOut){
+    Web(Light *lightOut, Ldr *ldrOut, DHT *dhtOut, Alarmclock *alarmclockOut, Filesystem *filesystemOut){
       ESP8266WebServer server(80);
       light = lightOut;
       ldr = ldrOut;
       dht = dhtOut;
       filesystem = filesystemOut;
+      alarmclock = alarmclockOut;
     }
 
     void index() {
@@ -52,7 +55,8 @@ class Web{
       buf += "<a href=\"/\">Início</a>";
       buf += " <a href=\"/log\">Main log</a>";
       buf += " <a href=\"/logsensors\">Sensors log</a>";
-      buf += " <a href=\"/alarmlog\">Alarm log</a><br>";
+      buf += " <a href=\"/alarmlog\">Alarm log</a>";
+      buf += " <a href=\"/alarmclock\">Alarmclock</a><br>";
       buf += "<h1>Clock-8266</h1>";
     	buf += "Tempo atual: " + String(day()) + "/" + String(month()) + "/" + String(year()) + " " + String(hour()) + ":" +String(minute()) + ":" + String(second()) + "<br>";
     	buf += "Ligado há " + String(millis()/1000) + " segundos.<br>";
@@ -93,7 +97,8 @@ class Web{
       buf += " <a href=\"/\">Início</a>";
       buf += " <a href=\"/log\">Main log</a>";
       buf += " <a href=\"/logsensors\">Sensors log</a>";
-      buf += " <a href=\"/alarmlog\">Alarm log</a><br>";
+      buf += " <a href=\"/alarmlog\">Alarm log</a>";
+      buf += " <a href=\"/alarmclock\">Alarmclock</a><br>";
       buf += "<h1>Clock-8266</h1>";
       buf += "Tempo atual: " + String(day()) + "/" + String(month()) + "/" + String(year()) + " " + String(hour()) + ":" +String(minute()) + ":" + String(second()) + "<br>";
       buf += "<h3>Main log</h3>";
@@ -128,7 +133,8 @@ class Web{
       buf += " <a href=\"/\">Início</a>";
       buf += " <a href=\"/log\">Main log</a>";
       buf += " <a href=\"/logsensors\">Sensors log</a>";
-      buf += " <a href=\"/alarmlog\">Alarm log</a><br>";
+      buf += " <a href=\"/alarmlog\">Alarm log</a>";
+      buf += " <a href=\"/alarmclock\">Alarmclock</a><br>";
       buf += "<h1>Clock-8266</h1>";
       buf += "Tempo atual: " + String(day()) + "/" + String(month()) + "/" + String(year()) + " " + String(hour()) + ":" + String(minute()) + ":" + String(second()) + "<br>";
 
@@ -153,11 +159,45 @@ class Web{
       server.send(200, "text/html", buf);
     }
 
+    void alarmclockWeb() {
+
+      if (server.arg("hour")!= "" && server.arg("minute")!= ""){
+    		alarmclock->setHour(server.arg("hour").toInt());
+        alarmclock->setMinute(server.arg("minute").toInt());
+    	}
+
+      buf = "";
+      buf += "<!DOCTYPE HTML>";
+    	buf += "<meta http-equiv='Content-Type' name='viewport' content='width=device-width, initial-scale=1.0' charset='utf-8'>";
+    	buf += "<title>Clock-8266</title>";
+      buf += " <a href=\"/\">Início</a>";
+      buf += " <a href=\"/log\">Main log</a>";
+      buf += " <a href=\"/logsensors\">Sensors log</a>";
+      buf += " <a href=\"/alarmlog\">Alarm log</a>";
+      buf += " <a href=\"/alarmclock\">Alarmclock</a><br>";
+      buf += "<h1>Clock-8266</h1>";
+      buf += "Tempo atual: " + String(day()) + "/" + String(month()) + "/" + String(year()) + " " + String(hour()) + ":" + String(minute()) + ":" + String(second()) + "<br>";
+
+      buf += "<br><br>Despertador configurado para " + String(alarmclock->getHour()) + ":" + String(alarmclock->getMinute()) + "<br>";
+
+      buf += "<form action=\"/alarmclock\">";
+      buf += "<br><br>Configurar novo horário:<br><br>";
+      buf += "<input type=\"text\" name=\"hour\" size=\"1\" value=\"" + String(alarmclock->getHour()) + "\"> ";
+      buf += ":<input type=\"text\" name=\"minute\" size=\"1\" value=\"" + String(alarmclock->getMinute()) + "\"> ";
+      buf += "<br><br>";
+      buf += "<input type=\"submit\" value=\"Configurar\">";
+      buf += "</form>";
+
+      buf += "</html>\n";
+      server.send(200, "text/html", buf);
+    }
+
     void begin(){
       //Que sacada louca esse std::bind(&Web::index, this) hahaha
       server.on("/", std::bind(&Web::index, this));
       server.on("/log", std::bind(&Web::mainLog, this));
       server.on("/alarmlog", std::bind(&Web::alarmLog, this));
+      server.on("/alarmclock", std::bind(&Web::alarmclockWeb, this));
       server.begin();
     }
 

@@ -16,6 +16,22 @@ class Alarmclock{
       buzzer = buzzerOut;
     }
 
+    void setMinute(int m){
+      minute_ = m;
+    }
+
+    void setHour(int h){
+      hour_ = h;
+    }
+
+    int getMinute(){
+      return minute_;
+    }
+
+    int getHour(){
+      return hour_;
+    }
+
     void activate(){
       if(hour() ==  hour_ && minute() == minute_){
         if(second() <= 30 ){
