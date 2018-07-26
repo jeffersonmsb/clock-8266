@@ -53,15 +53,16 @@ Buzzer buzzer(BUZZER);
 Ldr ldr(LDR);
 Pir pir(PIR);
 Filesystem filesystem;
-Alarmclock alarmclock(10, 15, &buzzer);
-Monitor monitor(&display, &dht, &pir, &filesystem);
+Alarmclock alarmclock(8, 15, &buzzer);
+Monitor monitor(&display, &dht, &pir, &ldr, &filesystem);
 Web web(&light, &ldr, &dht, &alarmclock, &filesystem);
 
 
 void setup(){
   display.raw(0b10111111, 0b10010111, 0b10101111, 0b10101111, 0x00);
 
-  WiFi.begin("wifiname", "password");
+WiFi.begin("wifiname", "password");
+//WiFi.begin("brisa-121548", "25skvilk");
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(100);

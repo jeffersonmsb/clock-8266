@@ -11,7 +11,7 @@ class Ldr{
     }
 
     int read(){
-      return analogRead(pin);
+      return 1024-analogRead(pin);
     }
 };
 #endif

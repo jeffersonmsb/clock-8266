@@ -5,6 +5,7 @@
 #include "DHT.h"
 #include "Filesystem.h"
 #include "Pir.h"
+#include "Ldr.h"
 
 class Monitor{
   private:
@@ -21,10 +22,14 @@ class Monitor{
     Pir *pir;
     unsigned long pirMillis;
 
+    unsigned long sensorsMillis;
+
     int alarmFlag;
 
+    Ldr *ldr;
+
   public:
-    Monitor(Display *displayOut, DHT *dhtOut, Pir *pirOut, Filesystem *filesystemOut){
+    Monitor(Display *displayOut, DHT *dhtOut, Pir *pirOut, Ldr *ldrOut, Filesystem *filesystemOut){
       display = displayOut;
       displayMillis = 0;
       displayFlag = 0;
@@ -35,6 +40,10 @@ class Monitor{
       filesystem = filesystemOut;
       pir  = pirOut;
       pirMillis = 0;
+
+      ldr = ldrOut;
+
+      sensorsMillis = 0;
 
       alarmFlag = 1;
     }
@@ -69,10 +78,20 @@ class Monitor{
       }
     }
 
+    void timerSensors(){
+      if(millis()-sensorsMillis >= 1000*60*5){
+    		sensorsMillis = millis();
+        filesystem->createFile("sensorslog" + String(day()) + "." + String(month()) + "." + String(year()));
+        filesystem->writeFile("sensorslog" + String(day()) + "." + String(month()) + "." + String(year()) ,String(day()) + "/" + String(month()) + "/" + String(year()) + " " + String(hour()) + ":" +String(minute()) + ":" + String(second()) + " "  + String(now())
+        + " " + String(dht->readTemperature()) + " " + String(ldr->read()));
+        }
+    }
+
     void run(){
       timerDisplay();
       timerDht();
       timerPir();
+      timerSensors();
       if(displayFlag == 0) display->clock(hour(), minute());
       if(displayFlag == 3) display->integer(8266);
       if(displayFlag == 2) display->floatTwoDecimals((float)(1533542400 - now())/86400.0);

@@ -54,7 +54,7 @@ class Web{
     	buf += "<title>Clock-8266</title>";
       buf += "<a href=\"/\">Início</a>";
       buf += " <a href=\"/log\">Main log</a>";
-      buf += " <a href=\"/logsensors\">Sensors log</a>";
+      buf += " <a href=\"/sensorslog\">Sensors log</a>";
       buf += " <a href=\"/alarmlog\">Alarm log</a>";
       buf += " <a href=\"/alarmclock\">Alarmclock</a><br>";
       buf += "<h1>Clock-8266</h1>";
@@ -96,7 +96,7 @@ class Web{
     	buf += "<title>Clock-8266</title>";
       buf += " <a href=\"/\">Início</a>";
       buf += " <a href=\"/log\">Main log</a>";
-      buf += " <a href=\"/logsensors\">Sensors log</a>";
+      buf += " <a href=\"/sensorslog\">Sensors log</a>";
       buf += " <a href=\"/alarmlog\">Alarm log</a>";
       buf += " <a href=\"/alarmclock\">Alarmclock</a><br>";
       buf += "<h1>Clock-8266</h1>";
@@ -132,7 +132,7 @@ class Web{
     	buf += "<title>Clock-8266</title>";
       buf += " <a href=\"/\">Início</a>";
       buf += " <a href=\"/log\">Main log</a>";
-      buf += " <a href=\"/logsensors\">Sensors log</a>";
+      buf += " <a href=\"/sensorslog\">Sensors log</a>";
       buf += " <a href=\"/alarmlog\">Alarm log</a>";
       buf += " <a href=\"/alarmclock\">Alarmclock</a><br>";
       buf += "<h1>Clock-8266</h1>";
@@ -172,7 +172,7 @@ class Web{
     	buf += "<title>Clock-8266</title>";
       buf += " <a href=\"/\">Início</a>";
       buf += " <a href=\"/log\">Main log</a>";
-      buf += " <a href=\"/logsensors\">Sensors log</a>";
+      buf += " <a href=\"/sensorslog\">Sensors log</a>";
       buf += " <a href=\"/alarmlog\">Alarm log</a>";
       buf += " <a href=\"/alarmclock\">Alarmclock</a><br>";
       buf += "<h1>Clock-8266</h1>";
@@ -192,12 +192,63 @@ class Web{
       server.send(200, "text/html", buf);
     }
 
+    void sensorsLog() {
+
+      int dayForm, monthForm, yearForm;
+      bool fileExists;
+
+      if (server.arg("day")!= "" || server.arg("month")!= "" || server.arg("year")!= ""){
+    		dayForm = server.arg("day").toInt();
+        monthForm = server.arg("month").toInt();
+        yearForm = server.arg("year").toInt();
+    	}else{
+        dayForm = day();
+        monthForm = month();
+        yearForm = year();
+      }
+
+      fileExists = filesystem->exists("sensorslog" + String(dayForm) + "." + String(monthForm) + "." + String(yearForm));
+
+      buf = "";
+      buf += "<!DOCTYPE HTML>";
+    	buf += "<meta http-equiv='Content-Type' name='viewport' content='width=device-width, initial-scale=1.0' charset='utf-8'>";
+    	buf += "<title>Clock-8266</title>";
+      buf += " <a href=\"/\">Início</a>";
+      buf += " <a href=\"/log\">Main log</a>";
+      buf += " <a href=\"/sensorslog\">Sensors log</a>";
+      buf += " <a href=\"/alarmlog\">Alarm log</a>";
+      buf += " <a href=\"/alarmclock\">Alarmclock</a><br>";
+      buf += "<h1>Clock-8266</h1>";
+      buf += "Tempo atual: " + String(day()) + "/" + String(month()) + "/" + String(year()) + " " + String(hour()) + ":" + String(minute()) + ":" + String(second()) + "<br>";
+
+      buf += "<form action=\"/sensorslog\">";
+      buf += "<br><br>Buscar por data anterior:<br>";
+      buf += "<input type=\"text\" name=\"day\" size=\"1\" value=\"" + String(dayForm) + "\"> ";
+      buf += "\<input type=\"text\" name=\"month\" size=\"1\" value=\"" + String(monthForm) + "\"> ";
+      buf += "\<input type=\"text\" name=\"year\" size=\"2\" value=\"" + String(yearForm) + "\"> ";
+      buf += "<br><br>";
+      buf += "<input type=\"submit\" value=\"Buscar\">";
+      buf += "</form>";
+
+      buf += "<h3>Sensors log</h3>";
+      buf += "<p>";
+      if(fileExists){
+        buf += filesystem->readFile("sensorslog" + String(dayForm) + "." + String(monthForm) + "." + String(yearForm));
+      }else{
+        buf += "Arquivo não encontrado :/<br>";
+      }
+      buf += "</p>";
+      buf += "</html>\n";
+      server.send(200, "text/html", buf);
+    }
+
     void begin(){
       //Que sacada louca esse std::bind(&Web::index, this) hahaha
       server.on("/", std::bind(&Web::index, this));
       server.on("/log", std::bind(&Web::mainLog, this));
       server.on("/alarmlog", std::bind(&Web::alarmLog, this));
       server.on("/alarmclock", std::bind(&Web::alarmclockWeb, this));
+      server.on("/sensorslog", std::bind(&Web::sensorsLog, this));
       server.begin();
     }
 
