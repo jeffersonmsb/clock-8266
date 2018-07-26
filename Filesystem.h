@@ -96,5 +96,13 @@ class Filesystem{
       return -1;
     }
 
+    bool exists(String fileName){
+      if(SPIFFS.exists("/" + fileName)){
+        return true;
+      } else {
+        return false;
+      }
+    }
+
 };
 #endif

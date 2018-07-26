@@ -105,6 +105,22 @@ class Web{
     }
 
     void alarmLog() {
+
+      int dayForm, monthForm, yearForm;
+      bool fileExists;
+
+      if (server.arg("day")!= "" || server.arg("month")!= "" || server.arg("year")!= ""){
+    		dayForm = server.arg("day").toInt();
+        monthForm = server.arg("month").toInt();
+        yearForm = server.arg("year").toInt();
+    	}else{
+        dayForm = day();
+        monthForm = month();
+        yearForm = year();
+      }
+
+      fileExists = filesystem->exists("alarmlog" + String(dayForm) + "." + String(monthForm) + "." + String(yearForm));
+
       buf = "";
       buf += "<!DOCTYPE HTML>";
     	buf += "<meta http-equiv='Content-Type' name='viewport' content='width=device-width, initial-scale=1.0' charset='utf-8'>";
@@ -114,10 +130,24 @@ class Web{
       buf += " <a href=\"/logsensors\">Sensors log</a>";
       buf += " <a href=\"/alarmlog\">Alarm log</a><br>";
       buf += "<h1>Clock-8266</h1>";
-      buf += "Tempo atual: " + String(day()) + "/" + String(month()) + "/" + String(year()) + " " + String(hour()) + ":" +String(minute()) + ":" + String(second()) + "<br>";
+      buf += "Tempo atual: " + String(day()) + "/" + String(month()) + "/" + String(year()) + " " + String(hour()) + ":" + String(minute()) + ":" + String(second()) + "<br>";
+
+      buf += "<form action=\"/alarmlog\">";
+      buf += "<br><br>Buscar por data anterior:<br>";
+      buf += "<input type=\"text\" name=\"day\" size=\"1\" value=\"" + String(dayForm) + "\"> ";
+      buf += "\<input type=\"text\" name=\"month\" size=\"1\" value=\"" + String(monthForm) + "\"> ";
+      buf += "\<input type=\"text\" name=\"year\" size=\"2\" value=\"" + String(yearForm) + "\"> ";
+      buf += "<br><br>";
+      buf += "<input type=\"submit\" value=\"Buscar\">";
+      buf += "</form>";
+
       buf += "<h3>Alarm log</h3>";
       buf += "<p>";
-      buf += filesystem->readFile("alarmlog");
+      if(fileExists){
+        buf += filesystem->readFile("alarmlog" + String(dayForm) + "." + String(monthForm) + "." + String(yearForm));
+      }else{
+        buf += "Arquivo não encontrado :/<br>";
+      }
       buf += "</p>";
       buf += "</html>\n";
       server.send(200, "text/html", buf);

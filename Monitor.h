@@ -36,8 +36,6 @@ class Monitor{
       pir  = pirOut;
       pirMillis = 0;
 
-      filesystem->createFile("alarmlog");
-
       alarmFlag = 1;
     }
 
@@ -65,7 +63,8 @@ class Monitor{
         alarmFlag = 1;
       }
       if(alarmFlag == 1 && pir->state() == HIGH){
-        filesystem->writeFile("alarmlog" ,String(day()) + "/" + String(month()) + "/" + String(year()) + " " + String(hour()) + ":" +String(minute()) + ":" + String(second()) + " "  + String(now()));
+        filesystem->createFile("alarmlog" + String(day()) + "." + String(month()) + "." + String(year()));
+        filesystem->writeFile("alarmlog" + String(day()) + "." + String(month()) + "." + String(year()) ,String(day()) + "/" + String(month()) + "/" + String(year()) + " " + String(hour()) + ":" +String(minute()) + ":" + String(second()) + " "  + String(now()));
         alarmFlag = 0;
       }
     }
