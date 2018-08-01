@@ -98,12 +98,23 @@ class Display{
     }
 
     void floatTwoDecimals(float value){
-      int a, b, c, d, v;
-      b=(int)value%10;
-      a=(int)value/10;
-      c=(int)(value*10)%10;
-    	d=(int)(value*100)%10;
-      raw(digitos[a], digitos[b]|0b01000000, digitos[c], digitos[d], 0b00000000);
+      int a, b, c, d;
+      if(value<100){
+        b=(int)value%10;
+        a=(int)value/10;
+        c=(int)(value*10)%10;
+      	d=(int)(value*100)%10;
+        raw(digitos[a], digitos[b]|0b01000000, digitos[c], digitos[d], 0b00000000);
+      }else{
+        int n = (int)value;
+        d=(int)(value*10)%10;
+        c=n%10;
+        n=n/10;
+        b=n%10;
+        n=n/10;
+        a=n;
+        raw(digitos[a], digitos[b], digitos[c]|0b01000000, digitos[d], 0b00000000);
+      }
     }
 
 };

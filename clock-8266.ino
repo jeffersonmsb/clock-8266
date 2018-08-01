@@ -61,8 +61,7 @@ Web web(&light, &ldr, &dht, &alarmclock, &filesystem);
 void setup(){
   display.raw(0b10111111, 0b10010111, 0b10101111, 0b10101111, 0x00);
 
-WiFi.begin("wifiname", "password");
-//WiFi.begin("brisa-121548", "25skvilk");
+WiFi.begin("brisa-121548", "25skvilk");
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(100);

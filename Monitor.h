@@ -51,7 +51,7 @@ class Monitor{
     void timerDisplay(){
       if(millis()-displayMillis >= 5000){
     		displayMillis = millis();
-    	  if(displayFlag > 2){
+    	  if(displayFlag > 1){
           displayFlag = 0;
         }else{
           displayFlag++;
@@ -93,7 +93,7 @@ class Monitor{
       timerPir();
       timerSensors();
       if(displayFlag == 0) display->clock(hour(), minute());
-      if(displayFlag == 3) display->integer(8266);
+      //if(displayFlag == 3) display->integer(8266);
       if(displayFlag == 2) display->floatTwoDecimals((float)(1533542400 - now())/86400.0);
       if(displayFlag == 1) display->temp(temp);
     }
