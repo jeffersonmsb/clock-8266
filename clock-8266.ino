@@ -17,6 +17,7 @@
 #include "Alarmclock.h"
 #include "Web.h"
 #include "Filesystem.h"
+#include <EEPROM.h>
 
 #define D0 16  //LED1
 #define D1 5 //PIR
@@ -61,7 +62,13 @@ Web web(&light, &ldr, &dht, &alarmclock, &filesystem);
 void setup(){
   display.raw(0b10111111, 0b10010111, 0b10101111, 0b10101111, 0x00);
 
-WiFi.begin("brisa-121548", "25skvilk");
+  EEPROM.begin(1024);
+  const char ssid[32] = "ssid";
+  const char wifipass[64] = "pass";
+  EEPROM.get(0,ssid);
+  EEPROM.get(32,wifipass);
+
+  WiFi.begin(ssid, wifipass);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(100);
@@ -79,6 +86,7 @@ WiFi.begin("brisa-121548", "25skvilk");
   filesystem.writeFile("log" ,String(day()) + "/" + String(month()) + "/" + String(year()) + " " + String(hour()) + ":" +String(minute()) + ":" + String(second()) + " "  + String(now()) + " Booting");
 
   web.begin();
+
 }
 
 void loop(){
